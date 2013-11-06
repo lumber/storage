@@ -6,11 +6,15 @@
  * @version 0.1.0
  */
 
-var https 	 = require('https'),
-    fs 		   = require('fs'),
-    crypto   = require('crypto'),
-    _        = require('underscore'),
-    config   = require('./config.js');
+var fs          = require('fs'),
+    crypto      = require('crypto'),
+    _           = require('underscore'),
+    config      = require('./config.js'),
+
+    // Our custom server implementations
+    srv_https   = require('./servers/https.js'),
+    srv_ws      = require('./servers/websockets.js'),
+    srv_syslog  = require('./servers/syslogd.js');
 
 var DB       = {
   Db         : require('mongodb').Db,
@@ -25,34 +29,15 @@ var Storage  = {
   },
   init: function () {
     // Create the http server
-    this.createServer(config.server);
+    this.createServers(config.server);
     
     // Create the mongodb instance
-    this.mongo.db = new DB.Db(config.db.name, this.mongo.server);
+    this.mongo.db = new DB.Db(config.db.name, this.mongo.server, { w: config.db.write });
   },
-  createServer: function (options) {
-    var _this = this;
-    https.createServer(options, function (req, res) {
-      // Add a listener for the data transmission
-      req.addListener("data", function(chunk) {
-        req.content += chunk;
-      });
-      // Add a listener for the end of transmission
-      req.addListener("end", function() {
-        if (req.method === "POST") {
-          if (_this.dataStore(req.content) === true) {
-            res.writeHead(202);
-          } else {
-            res.writeHead(406);
-          }
-        } else if (req.method === "GET") {
-
-        } else {
-
-        }
-        res.end(_this.responseKey(req.content));
-      });
-    }).listen(options.port);
+  createServers: function (options) {
+    // Set up the https server
+    var https = srv_https.server(options.https);
+    srv_https.handler(https, this);
   },
   responseKey: function (content) {
     var hash  = crypto.createHash('sha512')
@@ -81,6 +66,7 @@ var Storage  = {
       return false;
     }
 
+    // Store the data
     
     return true;
   },
