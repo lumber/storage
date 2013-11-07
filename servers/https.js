@@ -6,13 +6,12 @@
  * @version 0.1.0
  */
 
-var https       = require('https');
+var https       = require('https'),
+    config      = require('../config.js');
 
 exports.server = function (options) {
-  var server = https.createServer(options).listen(options.port);
-  console.log("HTTPS Server: Starting on port " + options.port);
-  console.log("SERVER DUMP");
-  console.log(server);
+  var server = https.createServer(options).listen(options.ip + options.port);
+  console.log(config.strings.logging.HTTPS.STARTING + options.port);
   return server;
 };
 

@@ -38,6 +38,10 @@ var Storage  = {
     // Set up the https server
     var https = srv_https.server(options.https);
     srv_https.handler(https, this);
+
+    // Set up the syslogd server
+    var syslogd = srv_syslog.server(options.syslogd);
+    srv_syslog.handler(syslogd, this);
   },
   responseKey: function (content) {
     var hash  = crypto.createHash('sha512')
@@ -67,7 +71,7 @@ var Storage  = {
     }
 
     // Store the data
-    
+
     return true;
   },
   dataRetrieve: function (data) {

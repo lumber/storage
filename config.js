@@ -23,6 +23,7 @@ exports.db    = {
 exports.server = {
   https: {
     port: "8000",
+    ip: "0.0.0.0",
     key:  fs.readFileSync("certs/key.pem"),
     cert: fs.readFileSync("certs/cert.pem")
   },
@@ -40,3 +41,6 @@ exports.server = {
 exports.client = {
   key: "CHANGEmeTOsomethingVERYrandomTRYgrc.COM/passwords.HTML"
 }
+
+// Include static config files
+exports.strings = require('./config/strings');
