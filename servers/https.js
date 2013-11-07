@@ -9,7 +9,11 @@
 var https       = require('https');
 
 exports.server = function (options) {
-  return https.createServer(options).listen(options.port);
+  var server = https.createServer(options).listen(options.port);
+  console.log("HTTPS Server: Starting on port " + options.port);
+  console.log("SERVER DUMP");
+  console.log(server);
+  return server;
 };
 
 exports.handler = function (server, scope) {
