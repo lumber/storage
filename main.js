@@ -14,7 +14,9 @@ var fs          = require('fs'),
     // Our custom server implementations
     srv_https   = require('./servers/https.js'),
     srv_ws      = require('./servers/websockets.js'),
-    srv_syslog  = require('./servers/syslogd.js');
+    srv_syslog  = require('./servers/syslogd.js'),
+
+    date = new Date();
 
 var DB       = {
   Db         : require('mongodb').Db,
@@ -23,6 +25,10 @@ var DB       = {
 
 var Storage  = {
   version: "0.1.0",
+  // The actual server containers
+  https: {},
+  syslogd: {},
+  websockets: {},
   mongo: {
     db: {},
     server: new DB.Server(config.db.host, config.db.port)
@@ -36,12 +42,16 @@ var Storage  = {
   },
   createServers: function (options) {
     // Set up the https server
-    var https = srv_https.server(options.https);
-    srv_https.handler(https, this);
+    this.https = srv_https.server(options.https);
+    srv_https.handler(this.https, this);
 
     // Set up the syslogd server
-    var syslogd = srv_syslog.server(options.syslogd);
-    srv_syslog.handler(syslogd, this);
+    this.syslogd = srv_syslog.server(options.syslogd);
+    srv_syslog.handler(this.syslogd, this);
+  },
+  destroyServers: function () {
+    this.https.shutdown(srv_https);
+    this.syslogd.shutdown(srv_syslog);
   },
   responseKey: function (content) {
     var hash  = crypto.createHash('sha512')
@@ -50,26 +60,14 @@ var Storage  = {
     return hash;
   },
   dataStore: function (content) {
-    // If there is no type set then run away
-    if (_.isUndefined(content.type)) {
-      return false;
-    }
+    // Extend with current time and other information
+    _.extend(content, {
+      time: date.toJSON()
+    });
 
-    // If there is no host then run away
-    if (_.isUndefined(content.host)) {
-      return false;
+    if (content.type === "syslog") {
+      //console.log(content);
     }
-
-    // If there is no data then run away
-    if (_.isUndefined(content.data)) {
-      return false;
-    }
-
-    // If there is no encryption key then run away
-    if (_.isUndefined(content.key)) {
-      return false;
-    }
-
     // Store the data
 
     return true;
@@ -80,3 +78,10 @@ var Storage  = {
 };
 
 Storage.init();
+
+process.on('exit', function() {
+  setTimeout(function() {
+    console.log("");
+  }, 0);
+  Storage.destroyServers();
+});

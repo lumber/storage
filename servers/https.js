@@ -10,7 +10,7 @@ var https       = require('https'),
     config      = require('../config.js');
 
 exports.server = function (options) {
-  var server = https.createServer(options).listen(options.ip + options.port);
+  var server = https.createServer(options).listen(options.port);
   console.log(config.strings.logging.HTTPS.STARTING + options.port);
   return server;
 };
@@ -28,7 +28,12 @@ exports.handler = function (server, scope) {
       if (request.content.length > 0) {
         if (request.method === "POST") {
           var content = JSON.parse(request.content);
-          if (scope.dataStore(content) === true) {
+          if (scope.dataStore({
+            type: "http",
+            ip: "v4",
+            host_ip: request.connection.remoteAddress,
+            content: content
+          }) === true) {
             response.writeHead(202);
           } else {
             response.writeHead(406);
@@ -44,5 +49,9 @@ exports.handler = function (server, scope) {
       response.end(scope.responseKey(request.content));
     });
   });
-  
-}
+};
+
+exports.shutdown = function (server) {
+  server.close();
+  console.log(config.strings.logging.HTTPS.STOPPING);
+};
