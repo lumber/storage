@@ -31,7 +31,7 @@ exports.server = {
     port: "8001"
   },
   syslogd: {
-    port: "541"
+    port: "514"
   }
 };
 

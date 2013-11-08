@@ -6,12 +6,16 @@
  */
 
 exports.logging = {
-  HTTPS   : {
-    STARTING: "HTTPS server starting on port: ",
+  HTTPS       : {
+    STARTING: "HTTPS server starting on port:       ",
     STOPPING: "HTTPS server is shut down"
   },
-  SYSLOGD : {
-    STARTING: "Syslogd starting on port:      ",
+  SYSLOGD     : {
+    STARTING: "Syslogd starting on port:            ",
+    STOPPING: "Syslogd is shut down"
+  },
+  WEBSOCKETS  : {
+    STARTING: "Syslogd starting on port:            ",
     STOPPING: "Syslogd is shut down"
   }
 };
