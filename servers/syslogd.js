@@ -13,44 +13,44 @@ var config        = require('../config.js'),
     syslogParser  = require("glossy").Parse;
 
 exports.server = function (options) {
-  var serverV4 = dgram.createSocket("udp4");
-  var serverV6 = dgram.createSocket("udp6");
+  var server4 = dgram.createSocket("udp4");
+  var server6 = dgram.createSocket("udp6");
 
-  serverV4.on("listening", function() {
-    var address = serverV4.address();
+  server4.on("listening", function() {
+    var address = server4.address();
     console.log(config.strings.logging.SYSLOGD.STARTING + options.port + "ipv4");
   });
 
-  serverV6.on("listening", function() {
-    var address = serverV4.address();
+  server6.on("listening", function() {
+    var address = server4.address();
     console.log(config.strings.logging.SYSLOGD.STARTING + options.port + "ipv6");
   });
 
-  serverV4.bind(options.port);
-  serverV6.bind(options.port);
+  server4.bind(options.port);
+  server6.bind(options.port);
 
   return {
-    serverV4: serverV4,
-    serverV6: serverV6
+    server4: server4,
+    server6: server6
   };
 };
 
 exports.handler = function (server, scope) {
-  server.serverV4.on("message", function(rawMessage, host) {
+  server.server4.on("message", function(rawMessage, host) {
     syslogParser.parse(rawMessage.toString('utf8', 0), function(parsedMessage){
-      scope.dataStore({ type: "syslog", ip: "v4", host: parsedMessage.host, content: parsedMessage });
+      scope.dataStore({ type: "syslog", host: host, content: parsedMessage });
     });
   });
 
-  server.serverV6.on("message", function(rawMessage, host) {
+  server.server6.on("message", function(rawMessage, host) {
     syslogParser.parse(rawMessage.toString('utf8', 0), function(parsedMessage){
-      scope.dataStore({ type: "syslog", ip: "v4", host: parsedMessage.host, content: parsedMessage });
+      scope.dataStore({ type: "syslog", host: host, content: parsedMessage });
     });
   });
 };
 
 exports.shutdown = function (server) {
-  server.serverV4.close();
-  server.serverV6.close();
+  server.server4.close();
+  server.server6.close();
   console.log(config.strings.logging.SYSLOGD.STOPPING);
 };

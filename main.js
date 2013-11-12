@@ -69,7 +69,7 @@ var Storage  = {
       console.log(content);
     }
     // Store the data
-
+    
     return true;
   },
   dataRetrieve: function (data) {
