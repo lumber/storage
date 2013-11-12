@@ -36,7 +36,7 @@ var Storage  = {
   init: function () {
     // Create the http server
     this.createServers(config.server);
-    
+
     // Create the mongodb instance
     this.mongo.db = new DB.Db(config.db.name, this.mongo.server, { w: config.db.write });
   },
@@ -66,7 +66,7 @@ var Storage  = {
     });
 
     if (content.type === "syslog") {
-      //console.log(content);
+      console.log(content);
     }
     // Store the data
 
@@ -85,3 +85,4 @@ process.on('exit', function() {
   }, 0);
   Storage.destroyServers();
 });
+
